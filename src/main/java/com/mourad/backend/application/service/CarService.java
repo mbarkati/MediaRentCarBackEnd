@@ -1,15 +1,14 @@
 package com.mourad.backend.application.service;
 
-import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.model.Car;
 import com.mourad.backend.domain.model.CarStatus;
-import com.mourad.backend.domain.model.Money;
 import com.mourad.backend.domain.port.in.CarUseCase;
 import com.mourad.backend.domain.port.out.CarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +23,9 @@ public class CarService implements CarUseCase {
     }
 
     @Override
-    public Car createCar(String licensePlate, String brand, String model, Money dailyRate) {
-        if (carRepository.existsByLicensePlate(licensePlate)) {
-            throw new CarAlreadyExistsException(licensePlate);
-        }
-        Car car = Car.create(licensePlate, brand, model, dailyRate);
+    public Car createCar(String brand, String model, int year, BigDecimal dailyPrice, String currency) {
+        // Domain invariants (year, price, currency) are enforced inside Car.create()
+        Car car = Car.create(brand, model, year, dailyPrice, currency);
         return carRepository.save(car);
     }
 
@@ -37,13 +34,6 @@ public class CarService implements CarUseCase {
     public Car getCarById(UUID id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException(id));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Car getCarByLicensePlate(String licensePlate) {
-        return carRepository.findByLicensePlate(licensePlate)
-                .orElseThrow(() -> new CarNotFoundException(licensePlate));
     }
 
     @Override
@@ -59,10 +49,19 @@ public class CarService implements CarUseCase {
     }
 
     @Override
-    public Car updateCar(UUID id, String brand, String model, Money dailyRate) {
+    public Car updateCar(UUID id, String brand, String model, int year,
+                          BigDecimal dailyPrice, String currency) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException(id));
-        car.update(brand, model, dailyRate);
+        car.update(brand, model, year, dailyPrice, currency);
+        return carRepository.save(car);
+    }
+
+    @Override
+    public Car updateCarPrice(UUID id, BigDecimal dailyPrice, String currency) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new CarNotFoundException(id));
+        car.updatePrice(dailyPrice, currency);
         return carRepository.save(car);
     }
 

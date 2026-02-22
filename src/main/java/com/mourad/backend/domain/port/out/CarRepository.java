@@ -13,13 +13,9 @@ public interface CarRepository {
 
     Optional<Car> findById(UUID id);
 
-    Optional<Car> findByLicensePlate(String licensePlate);
-
     List<Car> findAll();
 
     List<Car> findByStatus(CarStatus status);
-
-    boolean existsByLicensePlate(String licensePlate);
 
     void deleteById(UUID id);
 }

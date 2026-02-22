@@ -1,10 +1,9 @@
 package com.mourad.backend.application.service;
 
-import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
+import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.model.Car;
 import com.mourad.backend.domain.model.CarStatus;
-import com.mourad.backend.domain.model.Money;
 import com.mourad.backend.domain.port.out.CarRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,40 +30,59 @@ class CarServiceTest {
     @InjectMocks
     private CarService carService;
 
-    private static final Money DAILY_RATE = Money.of(BigDecimal.valueOf(50), "EUR");
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    // --- Test 1 ---
+    private static Car validCar() {
+        return Car.create("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR");
+    }
+
+    // ── Test 1 — createCar: happy path ────────────────────────────────────────
+
     @Test
-    void createCar_shouldReturnCreatedCar_whenLicensePlateIsUnique() {
-        when(carRepository.existsByLicensePlate("AB-123-CD")).thenReturn(false);
+    void createCar_shouldReturnCreatedCar_whenInputIsValid() {
         when(carRepository.save(any(Car.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Car result = carService.createCar("AB-123-CD", "Renault", "Clio", DAILY_RATE);
+        Car result = carService.createCar("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR");
 
-        assertThat(result.getLicensePlate()).isEqualTo("AB-123-CD");
         assertThat(result.getBrand()).isEqualTo("Renault");
         assertThat(result.getModel()).isEqualTo("Clio");
+        assertThat(result.getYear()).isEqualTo(2022);
+        assertThat(result.getDailyPrice()).isEqualByComparingTo(BigDecimal.valueOf(50));
+        assertThat(result.getCurrency()).isEqualTo("EUR");
         assertThat(result.getStatus()).isEqualTo(CarStatus.AVAILABLE);
         verify(carRepository).save(any(Car.class));
     }
 
-    // --- Test 2 ---
-    @Test
-    void createCar_shouldThrowCarAlreadyExistsException_whenLicensePlateAlreadyExists() {
-        when(carRepository.existsByLicensePlate("AB-123-CD")).thenReturn(true);
+    // ── Test 2 — createCar: domain rule — price must be > 0 ──────────────────
 
-        assertThatThrownBy(() -> carService.createCar("AB-123-CD", "Renault", "Clio", DAILY_RATE))
-                .isInstanceOf(CarAlreadyExistsException.class)
-                .hasMessageContaining("AB-123-CD");
+    @Test
+    void createCar_shouldThrowInvalidCarStateException_whenDailyPriceIsNotPositive() {
+        assertThatThrownBy(() ->
+                carService.createCar("Renault", "Clio", 2022, BigDecimal.ZERO, "EUR"))
+                .isInstanceOf(InvalidCarStateException.class)
+                .hasMessageContaining("Daily price");
 
         verify(carRepository, never()).save(any());
     }
 
-    // --- Test 3 ---
+    // ── Test 3 — createCar: domain rule — year in [1980, currentYear+1] ───────
+
+    @Test
+    void createCar_shouldThrowInvalidCarStateException_whenYearIsOutOfRange() {
+        assertThatThrownBy(() ->
+                carService.createCar("Renault", "Clio", 1900, BigDecimal.valueOf(50), "EUR"))
+                .isInstanceOf(InvalidCarStateException.class)
+                .hasMessageContaining("year");
+
+        verify(carRepository, never()).save(any());
+    }
+
+    // ── Test 4 — getCarById: found ────────────────────────────────────────────
+
     @Test
     void getCarById_shouldReturnCar_whenCarExists() {
         UUID id = UUID.randomUUID();
-        Car car = Car.create("AB-123-CD", "Renault", "Clio", DAILY_RATE);
+        Car car = validCar();
         when(carRepository.findById(id)).thenReturn(Optional.of(car));
 
         Car result = carService.getCarById(id);
@@ -72,7 +90,8 @@ class CarServiceTest {
         assertThat(result).isSameAs(car);
     }
 
-    // --- Test 4 ---
+    // ── Test 5 — getCarById: not found ────────────────────────────────────────
+
     @Test
     void getCarById_shouldThrowCarNotFoundException_whenCarDoesNotExist() {
         UUID id = UUID.randomUUID();
@@ -83,48 +102,45 @@ class CarServiceTest {
                 .hasMessageContaining(id.toString());
     }
 
-    // --- Test 5 ---
+    // ── Test 6 — getAllCars ───────────────────────────────────────────────────
+
     @Test
     void getAllCars_shouldReturnAllCars() {
-        List<Car> cars = List.of(
-                Car.create("AB-123-CD", "Renault", "Clio", DAILY_RATE),
-                Car.create("EF-456-GH", "Peugeot", "208", DAILY_RATE)
-        );
+        List<Car> cars = List.of(validCar(), validCar());
         when(carRepository.findAll()).thenReturn(cars);
 
-        List<Car> result = carService.getAllCars();
-
-        assertThat(result).hasSize(2);
+        assertThat(carService.getAllCars()).hasSize(2);
         verify(carRepository).findAll();
     }
 
-    // --- Test 6 ---
+    // ── Test 7 — updateCarPrice: happy path ───────────────────────────────────
+
     @Test
-    void updateCar_shouldReturnUpdatedCar_whenCarExists() {
+    void updateCarPrice_shouldUpdatePriceAndCurrency_whenCarExists() {
         UUID id = UUID.randomUUID();
-        Car car = Car.create("AB-123-CD", "Renault", "Clio", DAILY_RATE);
-        Money newRate = Money.of(BigDecimal.valueOf(75), "EUR");
+        Car car = validCar();
         when(carRepository.findById(id)).thenReturn(Optional.of(car));
         when(carRepository.save(any(Car.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Car result = carService.updateCar(id, "Renault", "Megane", newRate);
+        Car result = carService.updateCarPrice(id, BigDecimal.valueOf(75), "USD");
 
-        assertThat(result.getModel()).isEqualTo("Megane");
-        assertThat(result.getDailyRate().amount()).isEqualByComparingTo(BigDecimal.valueOf(75));
+        assertThat(result.getDailyPrice()).isEqualByComparingTo(BigDecimal.valueOf(75));
+        assertThat(result.getCurrency()).isEqualTo("USD");
         verify(carRepository).save(car);
     }
 
-    // --- Test 7 ---
+    // ── Test 8 — changeCarStatus ──────────────────────────────────────────────
+
     @Test
     void changeCarStatus_shouldUpdateStatus_whenCarExists() {
         UUID id = UUID.randomUUID();
-        Car car = Car.create("AB-123-CD", "Renault", "Clio", DAILY_RATE);
+        Car car = validCar();
         when(carRepository.findById(id)).thenReturn(Optional.of(car));
         when(carRepository.save(any(Car.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Car result = carService.changeCarStatus(id, CarStatus.RENTED);
+        Car result = carService.changeCarStatus(id, CarStatus.UNAVAILABLE);
 
-        assertThat(result.getStatus()).isEqualTo(CarStatus.RENTED);
+        assertThat(result.getStatus()).isEqualTo(CarStatus.UNAVAILABLE);
         verify(carRepository).save(car);
     }
 }

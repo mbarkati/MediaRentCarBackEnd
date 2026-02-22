@@ -32,11 +32,6 @@ public class CarRepositoryAdapter implements CarRepository {
     }
 
     @Override
-    public Optional<Car> findByLicensePlate(String licensePlate) {
-        return jpaRepository.findByLicensePlate(licensePlate).map(CarMapper::toDomain);
-    }
-
-    @Override
     public List<Car> findAll() {
         return jpaRepository.findAll().stream()
                 .map(CarMapper::toDomain)
@@ -48,11 +43,6 @@ public class CarRepositoryAdapter implements CarRepository {
         return jpaRepository.findByStatus(status).stream()
                 .map(CarMapper::toDomain)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean existsByLicensePlate(String licensePlate) {
-        return jpaRepository.existsByLicensePlate(licensePlate);
     }
 
     @Override

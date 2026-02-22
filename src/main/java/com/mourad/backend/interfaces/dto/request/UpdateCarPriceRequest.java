@@ -1,6 +1,5 @@
 package com.mourad.backend.interfaces.dto.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,19 +8,11 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
- * Input for PUT /api/v1/cars/{id} — full update of all mutable fields.
+ * Input for PATCH /api/v1/cars/{id}/price — focused price update.
+ * Changing only the price (and optionally the currency) is a common
+ * admin operation that deserves its own intentional command.
  */
-public record UpdateCarRequest(
-
-        @NotBlank(message = "Brand is required")
-        String brand,
-
-        @NotBlank(message = "Model is required")
-        String model,
-
-        @NotNull(message = "Year is required")
-        @Min(value = 1980, message = "Year must be >= 1980")
-        Integer year,
+public record UpdateCarPriceRequest(
 
         @NotNull(message = "Daily price is required")
         @Positive(message = "Daily price must be greater than 0")

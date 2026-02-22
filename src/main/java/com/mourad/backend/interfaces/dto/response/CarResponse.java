@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public record CarResponse(
         UUID id,
-        String licensePlate,
         String brand,
         String model,
-        BigDecimal dailyRateAmount,
-        String dailyRateCurrency,
+        int year,
+        BigDecimal dailyPrice,
+        String currency,
         CarStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -21,11 +21,11 @@ public record CarResponse(
     public static CarResponse from(Car car) {
         return new CarResponse(
                 car.getId(),
-                car.getLicensePlate(),
                 car.getBrand(),
                 car.getModel(),
-                car.getDailyRate().amount(),
-                car.getDailyRate().currency(),
+                car.getYear(),
+                car.getDailyPrice(),
+                car.getCurrency(),
                 car.getStatus(),
                 car.getCreatedAt(),
                 car.getUpdatedAt()
