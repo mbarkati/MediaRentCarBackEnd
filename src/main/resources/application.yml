@@ -21,7 +21,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:my-very-secret-key-for-development-only-must-be-at-least-32-chars}
-  expiration-ms: ${JWT_EXPIRATION_MS:86400000}   # 24 h
+  access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:3600000}    # 1 h
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 d
 
 server:
   port: 8080

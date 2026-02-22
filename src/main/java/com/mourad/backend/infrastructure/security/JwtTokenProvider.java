@@ -1,5 +1,6 @@
 package com.mourad.backend.infrastructure.security;
 
+import com.mourad.backend.domain.port.out.TokenPort;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -12,35 +13,64 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider implements TokenPort {
+
+    private static final String TYPE_CLAIM = "type";
+    private static final String ACCESS = "ACCESS";
+    private static final String REFRESH = "REFRESH";
 
     private final SecretKey secretKey;
-    private final long expirationMs;
+    private final long accessExpirationMs;
+    private final long refreshExpirationMs;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration-ms:86400000}") long expirationMs) {
+            @Value("${jwt.access-expiration-ms:3600000}") long accessExpirationMs,
+            @Value("${jwt.refresh-expiration-ms:604800000}") long refreshExpirationMs) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = expirationMs;
+        this.accessExpirationMs = accessExpirationMs;
+        this.refreshExpirationMs = refreshExpirationMs;
     }
 
-    public String generateToken(String username) {
+    @Override
+    public String generateAccessToken(String username) {
+        return buildToken(username, accessExpirationMs, ACCESS);
+    }
+
+    @Override
+    public String generateRefreshToken(String username) {
+        return buildToken(username, refreshExpirationMs, REFRESH);
+    }
+
+    @Override
+    public String extractUsernameFromToken(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    @Override
+    public boolean isAccessTokenValid(String token) {
+        return isTokenValidWithType(token, ACCESS);
+    }
+
+    @Override
+    public boolean isRefreshTokenValid(String token) {
+        return isTokenValidWithType(token, REFRESH);
+    }
+
+    private String buildToken(String username, long expirationMs, String type) {
         return Jwts.builder()
                 .subject(username)
+                .claim(TYPE_CLAIM, type)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return parseClaims(token).getSubject();
-    }
-
-    public boolean validateToken(String token) {
+    private boolean isTokenValidWithType(String token, String expectedType) {
         try {
-            parseClaims(token);
-            return true;
+            Claims claims = parseClaims(token);
+            return expectedType.equals(claims.get(TYPE_CLAIM, String.class));
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

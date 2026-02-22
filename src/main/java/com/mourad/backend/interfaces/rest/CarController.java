@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/cars")
+@RequestMapping("/api/admin/cars")
 @Tag(name = "Cars", description = "Admin operations on the car fleet")
 public class CarController {
 
@@ -42,7 +42,7 @@ public class CarController {
                 request.currency()
         );
         return ResponseEntity
-                .created(URI.create("/api/v1/cars/" + car.getId()))
+                .created(URI.create("/api/admin/cars/" + car.getId()))
                 .body(CarResponse.from(car));
     }
 

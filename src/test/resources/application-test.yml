@@ -12,7 +12,8 @@ spring:
 jwt:
   # Short, predictable key for tests — never used in prod
   secret: test-secret-key-for-tests-only-must-be-at-least-32-chars-long
-  expiration-ms: 3600000   # 1 h
+  access-expiration-ms: 3600000    # 1 h
+  refresh-expiration-ms: 604800000 # 7 d
 
 logging:
   level:

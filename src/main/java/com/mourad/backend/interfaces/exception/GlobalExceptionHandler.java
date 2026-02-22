@@ -3,6 +3,7 @@ package com.mourad.backend.interfaces.exception;
 import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
+import com.mourad.backend.domain.exception.InvalidCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +15,14 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problem.setTitle("Unauthorized");
+        problem.setType(URI.create("https://api.car-rental.com/errors/invalid-credentials"));
+        return problem;
+    }
 
     @ExceptionHandler(CarNotFoundException.class)
     public ProblemDetail handleCarNotFound(CarNotFoundException ex) {
