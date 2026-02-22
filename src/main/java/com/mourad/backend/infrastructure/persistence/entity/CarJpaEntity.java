@@ -42,8 +42,6 @@ public class CarJpaEntity {
 
     public CarJpaEntity() {}
 
-    // ----- Getters -----
-
     public UUID getId() { return id; }
     public String getLicensePlate() { return licensePlate; }
     public String getBrand() { return brand; }
@@ -53,8 +51,6 @@ public class CarJpaEntity {
     public CarStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
-
-    // ----- Setters -----
 
     public void setId(UUID id) { this.id = id; }
     public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
