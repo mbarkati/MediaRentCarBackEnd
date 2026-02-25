@@ -4,6 +4,7 @@ import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.exception.InvalidCredentialsException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +54,21 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
+        problem.setTitle("Validation Failed");
+        problem.setType(URI.create("https://api.car-rental.com/errors/validation-failed"));
+        return problem;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        String errors = ex.getConstraintViolations().stream()
+                .map(v -> {
+                    String path = v.getPropertyPath().toString();
+                    String param = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+                    return param + ": " + v.getMessage();
+                })
                 .collect(Collectors.joining(", "));
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
         problem.setTitle("Validation Failed");

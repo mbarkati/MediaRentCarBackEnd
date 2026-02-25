@@ -2,6 +2,7 @@ package com.mourad.backend.domain.port.out;
 
 import com.mourad.backend.domain.model.Car;
 import com.mourad.backend.domain.model.CarStatus;
+import com.mourad.backend.domain.model.PageResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,10 @@ public interface CarRepository {
     List<Car> findAll();
 
     List<Car> findByStatus(CarStatus status);
+
+    PageResult<Car> findAllPaged(int page, int size);
+
+    PageResult<Car> findByStatusPaged(CarStatus status, int page, int size);
 
     void deleteById(UUID id);
 }

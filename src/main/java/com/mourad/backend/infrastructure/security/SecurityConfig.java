@@ -52,6 +52,8 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Public car browsing (mobile / client)
+                        .requestMatchers("/api/cars/**").permitAll()
                         // Swagger UI
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // H2 console (only reachable when spring.h2.console.enabled=true in dev)
