@@ -1,8 +1,13 @@
 package com.mourad.backend.infrastructure.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mourad.backend.domain.port.out.TokenPort;
+import com.mourad.backend.interfaces.dto.response.ApiError;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,7 +47,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    JwtAuthenticationFilter jwtAuthFilter)
+                                                    JwtAuthenticationFilter jwtAuthFilter,
+                                                    ObjectMapper objectMapper)
             throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -50,6 +56,22 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Allow H2 frames (dev console only — disabled in prod)
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((req, resp, ex) -> {
+                            resp.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            ApiError error = ApiError.of(
+                                    HttpStatus.UNAUTHORIZED, "Authentication required", req.getRequestURI());
+                            resp.getWriter().write(objectMapper.writeValueAsString(error));
+                        })
+                        .accessDeniedHandler((req, resp, ex) -> {
+                            resp.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            ApiError error = ApiError.of(
+                                    HttpStatus.FORBIDDEN, "Access denied", req.getRequestURI());
+                            resp.getWriter().write(objectMapper.writeValueAsString(error));
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         // Public car browsing (mobile / client)

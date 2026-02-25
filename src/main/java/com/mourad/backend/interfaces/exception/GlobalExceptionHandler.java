@@ -4,84 +4,129 @@ import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.exception.InvalidCredentialsException;
+import com.mourad.backend.interfaces.dto.response.ApiError;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.net.URI;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ── Domain — authentication ───────────────────────────────────────────────
+
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
-        problem.setTitle("Unauthorized");
-        problem.setType(URI.create("https://api.car-rental.com/errors/invalid-credentials"));
-        return problem;
+    public ResponseEntity<ApiError> handleInvalidCredentials(
+            InvalidCredentialsException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
     }
 
+    // ── Domain — car ──────────────────────────────────────────────────────────
+
     @ExceptionHandler(CarNotFoundException.class)
-    public ProblemDetail handleCarNotFound(CarNotFoundException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
-        problem.setTitle("Car Not Found");
-        problem.setType(URI.create("https://api.car-rental.com/errors/car-not-found"));
-        return problem;
+    public ResponseEntity<ApiError> handleCarNotFound(
+            CarNotFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req);
     }
 
     @ExceptionHandler(CarAlreadyExistsException.class)
-    public ProblemDetail handleCarAlreadyExists(CarAlreadyExistsException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
-        problem.setTitle("Car Already Exists");
-        problem.setType(URI.create("https://api.car-rental.com/errors/car-already-exists"));
-        return problem;
+    public ResponseEntity<ApiError> handleCarAlreadyExists(
+            CarAlreadyExistsException ex, HttpServletRequest req) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), req);
     }
 
     @ExceptionHandler(InvalidCarStateException.class)
-    public ProblemDetail handleInvalidCarState(InvalidCarStateException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-        problem.setTitle("Invalid Car State");
-        problem.setType(URI.create("https://api.car-rental.com/errors/invalid-car-state"));
-        return problem;
+    public ResponseEntity<ApiError> handleInvalidCarState(
+            InvalidCarStateException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req);
     }
+
+    // ── Validation — request body (@Valid) ────────────────────────────────────
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
-        String errors = ex.getBindingResult().getFieldErrors().stream()
+    public ResponseEntity<ApiError> handleRequestBodyValidation(
+            MethodArgumentNotValidException ex, HttpServletRequest req) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
-        problem.setTitle("Validation Failed");
-        problem.setType(URI.create("https://api.car-rental.com/errors/validation-failed"));
-        return problem;
+        return build(HttpStatus.BAD_REQUEST, message, req);
     }
 
+    // ── Validation — query / path params (@Validated) ─────────────────────────
+
     @ExceptionHandler(ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        String errors = ex.getConstraintViolations().stream()
+    public ResponseEntity<ApiError> handleConstraintViolation(
+            ConstraintViolationException ex, HttpServletRequest req) {
+        String message = ex.getConstraintViolations().stream()
                 .map(v -> {
-                    String path = v.getPropertyPath().toString();
-                    String param = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+                    String propPath = v.getPropertyPath().toString();
+                    String param = propPath.contains(".")
+                            ? propPath.substring(propPath.lastIndexOf('.') + 1)
+                            : propPath;
                     return param + ": " + v.getMessage();
                 })
                 .collect(Collectors.joining(", "));
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors);
-        problem.setTitle("Validation Failed");
-        problem.setType(URI.create("https://api.car-rental.com/errors/validation-failed"));
-        return problem;
+        return build(HttpStatus.BAD_REQUEST, message, req);
     }
 
+    // ── Spring MVC ────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, "Malformed JSON request body", req);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiError> handleMissingParam(
+            MissingServletRequestParameterException ex, HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST,
+                "Missing required parameter: " + ex.getParameterName(), req);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
+        String message = "Invalid value '" + ex.getValue()
+                + "' for parameter '" + ex.getName() + "'";
+        return build(HttpStatus.BAD_REQUEST, message, req);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotAllowed(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest req) {
+        return build(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFound(
+            NoResourceFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, "No endpoint found for " + req.getMethod()
+                + " " + req.getRequestURI(), req);
+    }
+
+    // ── Fallback ──────────────────────────────────────────────────────────────
+
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGeneric(Exception ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-        problem.setTitle("Internal Server Error");
-        problem.setType(URI.create("https://api.car-rental.com/errors/internal-error"));
-        return problem;
+    public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest req) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", req);
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+
+    private static ResponseEntity<ApiError> build(HttpStatus status, String message,
+                                                   HttpServletRequest req) {
+        return ResponseEntity.status(status)
+                .body(ApiError.of(status, message, req.getRequestURI()));
     }
 }
