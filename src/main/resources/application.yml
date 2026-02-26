@@ -2,8 +2,11 @@ spring:
   application:
     name: car-rental-backend
 
+  profiles:
+    default: dev
+
   # Datasource is configured per-profile (dev / test / prod).
-  # If no profile is active, Spring Boot auto-selects H2 from the classpath.
+  # Default profile is "dev" (H2 in-memory). Use "prod" for PostgreSQL.
 
   jpa:
     # Flyway owns the schema — Hibernate only validates the mapping.
