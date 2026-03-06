@@ -4,6 +4,7 @@ import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.exception.InvalidCredentialsException;
+import com.mourad.backend.domain.exception.UnavailablePeriodNotFoundException;
 import com.mourad.backend.interfaces.dto.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleInvalidCarState(
             InvalidCarStateException ex, HttpServletRequest req) {
         return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(UnavailablePeriodNotFoundException.class)
+    public ResponseEntity<ApiError> handleUnavailablePeriodNotFound(
+            UnavailablePeriodNotFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req);
     }
 
     // ── Validation — request body (@Valid) ────────────────────────────────────

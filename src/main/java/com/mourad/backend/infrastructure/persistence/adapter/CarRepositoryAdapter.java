@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +60,13 @@ public class CarRepositoryAdapter implements CarRepository {
     @Override
     public PageResult<Car> findByStatusPaged(CarStatus status, int page, int size) {
         Page<CarJpaEntity> p = jpaRepository.findByStatus(status, PageRequest.of(page, size));
+        List<Car> cars = p.getContent().stream().map(CarMapper::toDomain).collect(Collectors.toList());
+        return new PageResult<>(cars, p.getTotalElements(), p.getTotalPages(), p.getNumber(), p.isFirst(), p.isLast());
+    }
+
+    @Override
+    public PageResult<Car> findAvailableOnDatesPaged(LocalDate startDate, LocalDate endDate, int page, int size) {
+        Page<CarJpaEntity> p = jpaRepository.findAvailableOnDates(startDate, endDate, PageRequest.of(page, size));
         List<Car> cars = p.getContent().stream().map(CarMapper::toDomain).collect(Collectors.toList());
         return new PageResult<>(cars, p.getTotalElements(), p.getTotalPages(), p.getNumber(), p.isFirst(), p.isLast());
     }

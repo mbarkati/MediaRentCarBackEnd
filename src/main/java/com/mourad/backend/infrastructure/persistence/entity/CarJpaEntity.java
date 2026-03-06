@@ -1,6 +1,8 @@
 package com.mourad.backend.infrastructure.persistence.entity;
 
 import com.mourad.backend.domain.model.CarStatus;
+import com.mourad.backend.domain.model.Fuel;
+import com.mourad.backend.domain.model.Transmission;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -34,6 +36,17 @@ public class CarJpaEntity {
     @Column(nullable = false)
     private CarStatus status;
 
+    @Column
+    private Integer seats;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Transmission transmission;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Fuel fuel;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -49,6 +62,9 @@ public class CarJpaEntity {
     public BigDecimal getDailyPrice() { return dailyPrice; }
     public String getCurrency() { return currency; }
     public CarStatus getStatus() { return status; }
+    public Integer getSeats() { return seats; }
+    public Transmission getTransmission() { return transmission; }
+    public Fuel getFuel() { return fuel; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
@@ -59,6 +75,9 @@ public class CarJpaEntity {
     public void setDailyPrice(BigDecimal dailyPrice) { this.dailyPrice = dailyPrice; }
     public void setCurrency(String currency) { this.currency = currency; }
     public void setStatus(CarStatus status) { this.status = status; }
+    public void setSeats(Integer seats) { this.seats = seats; }
+    public void setTransmission(Transmission transmission) { this.transmission = transmission; }
+    public void setFuel(Fuel fuel) { this.fuel = fuel; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

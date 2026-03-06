@@ -1,5 +1,7 @@
 package com.mourad.backend.interfaces.dto.request;
 
+import com.mourad.backend.domain.model.Fuel;
+import com.mourad.backend.domain.model.Transmission;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +18,10 @@ import java.math.BigDecimal;
                   "model": "308",
                   "year": 2023,
                   "dailyPrice": 55.00,
-                  "currency": "EUR"
+                  "currency": "EUR",
+                  "seats": 5,
+                  "transmission": "MANUAL",
+                  "fuel": "DIESEL"
                 }
                 """)
 public record CreateCarRequest(
@@ -42,5 +47,15 @@ public record CreateCarRequest(
         @Schema(description = "ISO 4217 currency code (3 letters)", example = "EUR")
         @NotBlank(message = "Currency is required")
         @Size(min = 3, max = 3, message = "Currency must be a 3-letter ISO 4217 code (e.g. EUR)")
-        String currency
+        String currency,
+
+        @Schema(description = "Number of seats (optional)", example = "5")
+        @Positive(message = "Seats must be greater than 0")
+        Integer seats,
+
+        @Schema(description = "Transmission type (optional)", example = "MANUAL")
+        Transmission transmission,
+
+        @Schema(description = "Fuel type (optional)", example = "DIESEL")
+        Fuel fuel
 ) {}

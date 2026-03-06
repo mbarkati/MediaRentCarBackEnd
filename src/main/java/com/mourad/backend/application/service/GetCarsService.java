@@ -9,6 +9,7 @@ import com.mourad.backend.domain.port.out.CarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,13 @@ public class GetCarsService implements GetCarsUseCase {
         PageResult<Car> raw = status != null
                 ? carRepository.findByStatusPaged(status, page, size)
                 : carRepository.findAllPaged(page, size);
+        List<CarDto> dtos = raw.content().stream().map(CarDto::from).collect(Collectors.toList());
+        return new PageResult<>(dtos, raw.totalElements(), raw.totalPages(), raw.currentPage(), raw.first(), raw.last());
+    }
+
+    @Override
+    public PageResult<CarDto> findAvailableOnDates(LocalDate startDate, LocalDate endDate, int page, int size) {
+        PageResult<Car> raw = carRepository.findAvailableOnDatesPaged(startDate, endDate, page, size);
         List<CarDto> dtos = raw.content().stream().map(CarDto::from).collect(Collectors.toList());
         return new PageResult<>(dtos, raw.totalElements(), raw.totalPages(), raw.currentPage(), raw.first(), raw.last());
     }

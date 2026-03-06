@@ -34,7 +34,7 @@ class CreateCarServiceTest {
     void execute_shouldReturnCarDto_whenInputIsValid() {
         when(carRepository.save(any(Car.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR");
+        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR", null, null, null);
         CarDto result = createCarService.execute(command);
 
         assertThat(result.brand()).isEqualTo("Renault");
@@ -50,7 +50,7 @@ class CreateCarServiceTest {
 
     @Test
     void execute_shouldThrow_whenDailyPriceIsNotPositive() {
-        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 2022, BigDecimal.ZERO, "EUR");
+        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 2022, BigDecimal.ZERO, "EUR", null, null, null);
 
         assertThatThrownBy(() -> createCarService.execute(command))
                 .isInstanceOf(InvalidCarStateException.class)
@@ -63,7 +63,7 @@ class CreateCarServiceTest {
 
     @Test
     void execute_shouldThrow_whenYearIsOutOfRange() {
-        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 1900, BigDecimal.valueOf(50), "EUR");
+        CreateCarCommand command = new CreateCarCommand("Renault", "Clio", 1900, BigDecimal.valueOf(50), "EUR", null, null, null);
 
         assertThatThrownBy(() -> createCarService.execute(command))
                 .isInstanceOf(InvalidCarStateException.class)

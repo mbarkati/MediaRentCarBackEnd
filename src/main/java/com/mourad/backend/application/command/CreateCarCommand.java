@@ -1,5 +1,8 @@
 package com.mourad.backend.application.command;
 
+import com.mourad.backend.domain.model.Fuel;
+import com.mourad.backend.domain.model.Transmission;
+
 import java.math.BigDecimal;
 
 public record CreateCarCommand(
@@ -7,5 +10,8 @@ public record CreateCarCommand(
         String model,
         int year,
         BigDecimal dailyPrice,
-        String currency
+        String currency,
+        Integer seats,
+        Transmission transmission,
+        Fuel fuel
 ) {}

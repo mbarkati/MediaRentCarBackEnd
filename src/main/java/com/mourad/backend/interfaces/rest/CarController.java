@@ -129,7 +129,10 @@ public class CarController {
                 request.model(),
                 request.year(),
                 request.dailyPrice(),
-                request.currency()
+                request.currency(),
+                request.seats(),
+                request.transmission(),
+                request.fuel()
         ));
         return ResponseEntity
                 .created(URI.create("/api/admin/cars/" + dto.id()))

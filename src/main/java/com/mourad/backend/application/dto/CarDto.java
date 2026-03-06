@@ -2,6 +2,8 @@ package com.mourad.backend.application.dto;
 
 import com.mourad.backend.domain.model.Car;
 import com.mourad.backend.domain.model.CarStatus;
+import com.mourad.backend.domain.model.Fuel;
+import com.mourad.backend.domain.model.Transmission;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +17,9 @@ public record CarDto(
         BigDecimal dailyPrice,
         String currency,
         CarStatus status,
+        Integer seats,
+        Transmission transmission,
+        Fuel fuel,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -27,6 +32,9 @@ public record CarDto(
                 car.getDailyPrice(),
                 car.getCurrency(),
                 car.getStatus(),
+                car.getSeats(),
+                car.getTransmission(),
+                car.getFuel(),
                 car.getCreatedAt(),
                 car.getUpdatedAt()
         );

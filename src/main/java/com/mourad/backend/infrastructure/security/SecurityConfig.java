@@ -76,6 +76,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Public car browsing (mobile / client)
                         .requestMatchers("/api/cars/**").permitAll()
+                        // Public app config (mobile reads at startup)
+                        .requestMatchers("/api/config/**").permitAll()
                         // Swagger UI
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // H2 console (only reachable when spring.h2.console.enabled=true in dev)

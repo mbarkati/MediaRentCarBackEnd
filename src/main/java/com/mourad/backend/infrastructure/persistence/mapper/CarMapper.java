@@ -16,6 +16,9 @@ public class CarMapper {
                 entity.getDailyPrice(),
                 entity.getCurrency(),
                 entity.getStatus(),
+                entity.getSeats(),
+                entity.getTransmission(),
+                entity.getFuel(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -30,6 +33,9 @@ public class CarMapper {
         entity.setDailyPrice(car.getDailyPrice());
         entity.setCurrency(car.getCurrency());
         entity.setStatus(car.getStatus());
+        entity.setSeats(car.getSeats());
+        entity.setTransmission(car.getTransmission());
+        entity.setFuel(car.getFuel());
         entity.setCreatedAt(car.getCreatedAt());
         entity.setUpdatedAt(car.getUpdatedAt());
         return entity;

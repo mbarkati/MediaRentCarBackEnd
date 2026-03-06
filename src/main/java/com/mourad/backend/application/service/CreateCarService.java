@@ -25,7 +25,10 @@ public class CreateCarService implements CreateCarUseCase {
                 command.model(),
                 command.year(),
                 command.dailyPrice(),
-                command.currency()
+                command.currency(),
+                command.seats(),
+                command.transmission(),
+                command.fuel()
         );
         return CarDto.from(carRepository.save(car));
     }

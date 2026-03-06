@@ -15,10 +15,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -38,7 +40,10 @@ public class PublicCarController {
     @GetMapping
     @Operation(
             summary = "List cars",
-            description = "Returns a paginated list of cars. Optionally filter by status. Default page size is 20 (max 100)."
+            description = "Returns a paginated list of cars. " +
+                    "When `startDate` and `endDate` are both provided, only returns cars with status AVAILABLE " +
+                    "that have no unavailability period overlapping the requested range. " +
+                    "Without dates, all cars are returned (optionally filtered by status)."
     )
     @ApiResponse(responseCode = "200", description = "Paginated car list",
             content = @Content(mediaType = "application/json",
@@ -77,14 +82,23 @@ public class PublicCarController {
                             }
                             """)))
     public ResponseEntity<PageResult<CarDto>> getCars(
-            @Parameter(description = "Filter by status — omit for all cars", example = "AVAILABLE")
+            @Parameter(description = "Filter by status — omit for all cars (ignored when startDate/endDate are provided)", example = "AVAILABLE")
             @RequestParam(required = false) CarStatus status,
+
+            @Parameter(description = "Availability filter start date (ISO 8601). Requires endDate.", example = "2026-03-10")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+
+            @Parameter(description = "Availability filter end date (ISO 8601). Requires startDate.", example = "2026-03-15")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 
             @Parameter(description = "Zero-based page index", example = "0")
             @RequestParam(defaultValue = "0") @Min(0) int page,
 
             @Parameter(description = "Page size — between 1 and 100", example = "20")
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        if (startDate != null && endDate != null) {
+            return ResponseEntity.ok(getCarsUseCase.findAvailableOnDates(startDate, endDate, page, size));
+        }
         return ResponseEntity.ok(getCarsUseCase.findPaged(page, size, status));
     }
 

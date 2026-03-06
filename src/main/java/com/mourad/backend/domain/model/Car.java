@@ -20,6 +20,9 @@ public class Car {
     private BigDecimal dailyPrice;
     private String currency;
     private CarStatus status;
+    private Integer seats;
+    private Transmission transmission;
+    private Fuel fuel;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -28,7 +31,8 @@ public class Car {
     // ── Factory — new car ─────────────────────────────────────────────────────
 
     public static Car create(String brand, String model, int year,
-                              BigDecimal dailyPrice, String currency) {
+                              BigDecimal dailyPrice, String currency,
+                              Integer seats, Transmission transmission, Fuel fuel) {
         validateYear(year);
         validateDailyPrice(dailyPrice);
         validateCurrency(currency);
@@ -41,6 +45,9 @@ public class Car {
         car.dailyPrice = dailyPrice;
         car.currency = currency.toUpperCase();
         car.status = CarStatus.AVAILABLE;
+        car.seats = seats;
+        car.transmission = transmission;
+        car.fuel = fuel;
         car.createdAt = LocalDateTime.now();
         car.updatedAt = LocalDateTime.now();
         return car;
@@ -50,6 +57,7 @@ public class Car {
 
     public static Car reconstitute(UUID id, String brand, String model, int year,
                                     BigDecimal dailyPrice, String currency, CarStatus status,
+                                    Integer seats, Transmission transmission, Fuel fuel,
                                     LocalDateTime createdAt, LocalDateTime updatedAt) {
         Car car = new Car();
         car.id = id;
@@ -59,6 +67,9 @@ public class Car {
         car.dailyPrice = dailyPrice;
         car.currency = currency;
         car.status = status;
+        car.seats = seats;
+        car.transmission = transmission;
+        car.fuel = fuel;
         car.createdAt = createdAt;
         car.updatedAt = updatedAt;
         return car;
@@ -137,6 +148,9 @@ public class Car {
     public BigDecimal getDailyPrice() { return dailyPrice; }
     public String getCurrency() { return currency; }
     public CarStatus getStatus() { return status; }
+    public Integer getSeats() { return seats; }
+    public Transmission getTransmission() { return transmission; }
+    public Fuel getFuel() { return fuel; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
