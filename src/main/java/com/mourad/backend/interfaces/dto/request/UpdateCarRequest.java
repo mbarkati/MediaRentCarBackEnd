@@ -11,28 +11,14 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-@Schema(description = "Payload to add a car to the fleet",
-        example = """
-                {
-                  "brand": "Peugeot",
-                  "model": "308",
-                  "year": 2023,
-                  "pricePerDay": 55.00,
-                  "currency": "MAD",
-                  "seats": 5,
-                  "transmission": "MANUAL",
-                  "fuel": "DIESEL",
-                  "city": "Casablanca",
-                  "imageUrl": "https://example.com/car.jpg"
-                }
-                """)
-public record CreateCarRequest(
+@Schema(description = "Payload to fully update a car")
+public record UpdateCarRequest(
 
-        @Schema(description = "Manufacturer name", example = "Peugeot")
+        @Schema(description = "Manufacturer name", example = "Renault")
         @NotBlank(message = "Brand is required")
         String brand,
 
-        @Schema(description = "Model name", example = "308")
+        @Schema(description = "Model name", example = "Clio")
         @NotBlank(message = "Model is required")
         String model,
 
@@ -41,7 +27,7 @@ public record CreateCarRequest(
         @Min(value = 1980, message = "Year must be >= 1980")
         Integer year,
 
-        @Schema(description = "Daily rental price — must be > 0", example = "55.00")
+        @Schema(description = "Daily rental price — must be > 0", example = "300.00")
         @NotNull(message = "Price per day is required")
         @Positive(message = "Price per day must be greater than 0")
         BigDecimal pricePerDay,
@@ -55,13 +41,13 @@ public record CreateCarRequest(
         @Positive(message = "Seats must be greater than 0")
         Integer seats,
 
-        @Schema(description = "Transmission type (optional)", example = "MANUAL")
+        @Schema(description = "Transmission type (optional)", example = "AUTOMATIC")
         Transmission transmission,
 
-        @Schema(description = "Fuel type (optional)", example = "DIESEL")
+        @Schema(description = "Fuel type (optional)", example = "PETROL")
         Fuel fuel,
 
-        @Schema(description = "City where the car is available (optional)", example = "Casablanca")
+        @Schema(description = "City where the car is available (optional)", example = "Marrakech")
         String city,
 
         @Schema(description = "URL of the car image (optional)", example = "https://example.com/car.jpg")

@@ -47,6 +47,12 @@ public class CarJpaEntity {
     @Column
     private Fuel fuel;
 
+    @Column
+    private String city;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -65,6 +71,8 @@ public class CarJpaEntity {
     public Integer getSeats() { return seats; }
     public Transmission getTransmission() { return transmission; }
     public Fuel getFuel() { return fuel; }
+    public String getCity() { return city; }
+    public String getImageUrl() { return imageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
@@ -78,6 +86,8 @@ public class CarJpaEntity {
     public void setSeats(Integer seats) { this.seats = seats; }
     public void setTransmission(Transmission transmission) { this.transmission = transmission; }
     public void setFuel(Fuel fuel) { this.fuel = fuel; }
+    public void setCity(String city) { this.city = city; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

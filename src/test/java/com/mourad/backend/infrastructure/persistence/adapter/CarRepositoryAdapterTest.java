@@ -30,7 +30,7 @@ class CarRepositoryAdapterTest {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static Car availableCar(String brand) {
-        return Car.create(brand, "Model", 2022, BigDecimal.valueOf(50), "EUR", null, null, null);
+        return Car.create(brand, "Model", 2022, BigDecimal.valueOf(50), "EUR", null, null, null, null, null);
     }
 
     // ── save ──────────────────────────────────────────────────────────────────

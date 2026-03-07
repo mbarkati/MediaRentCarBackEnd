@@ -82,22 +82,25 @@ public class PublicCarController {
                             }
                             """)))
     public ResponseEntity<PageResult<CarDto>> getCars(
-            @Parameter(description = "Filter by status — omit for all cars (ignored when startDate/endDate are provided)", example = "AVAILABLE")
+            @Parameter(description = "City filter — only cars available in this city", example = "Casablanca")
+            @RequestParam(required = false) String city,
+
+            @Parameter(description = "Availability start date (ISO 8601). Requires 'to'.", example = "2026-03-10")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+
+            @Parameter(description = "Availability end date (ISO 8601). Requires 'from'.", example = "2026-03-15")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+
+            @Parameter(description = "Filter by status — ignored when from/to are provided", example = "AVAILABLE")
             @RequestParam(required = false) CarStatus status,
-
-            @Parameter(description = "Availability filter start date (ISO 8601). Requires endDate.", example = "2026-03-10")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-
-            @Parameter(description = "Availability filter end date (ISO 8601). Requires startDate.", example = "2026-03-15")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 
             @Parameter(description = "Zero-based page index", example = "0")
             @RequestParam(defaultValue = "0") @Min(0) int page,
 
             @Parameter(description = "Page size — between 1 and 100", example = "20")
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-        if (startDate != null && endDate != null) {
-            return ResponseEntity.ok(getCarsUseCase.findAvailableOnDates(startDate, endDate, page, size));
+        if (from != null && to != null) {
+            return ResponseEntity.ok(getCarsUseCase.findAvailableOnDates(city, from, to, page, size));
         }
         return ResponseEntity.ok(getCarsUseCase.findPaged(page, size, status));
     }

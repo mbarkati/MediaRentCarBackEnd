@@ -19,11 +19,13 @@ public interface CarJpaRepository extends JpaRepository<CarJpaEntity, UUID> {
     Page<CarJpaEntity> findByStatus(CarStatus status, Pageable pageable);
 
     @Query("SELECT c FROM CarJpaEntity c WHERE c.status = com.mourad.backend.domain.model.CarStatus.AVAILABLE " +
+           "AND (:city IS NULL OR LOWER(c.city) = LOWER(:city)) " +
            "AND c.id NOT IN (" +
            "  SELECT up.car.id FROM UnavailablePeriodJpaEntity up " +
            "  WHERE up.startDate <= :endDate AND up.endDate >= :startDate" +
            ")")
-    Page<CarJpaEntity> findAvailableOnDates(@Param("startDate") LocalDate startDate,
+    Page<CarJpaEntity> findAvailableOnDates(@Param("city") String city,
+                                             @Param("startDate") LocalDate startDate,
                                              @Param("endDate") LocalDate endDate,
                                              Pageable pageable);
 }

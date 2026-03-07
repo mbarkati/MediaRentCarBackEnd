@@ -19,6 +19,8 @@ public class CarMapper {
                 entity.getSeats(),
                 entity.getTransmission(),
                 entity.getFuel(),
+                entity.getCity(),
+                entity.getImageUrl(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -36,6 +38,8 @@ public class CarMapper {
         entity.setSeats(car.getSeats());
         entity.setTransmission(car.getTransmission());
         entity.setFuel(car.getFuel());
+        entity.setCity(car.getCity());
+        entity.setImageUrl(car.getImageUrl());
         entity.setCreatedAt(car.getCreatedAt());
         entity.setUpdatedAt(car.getUpdatedAt());
         return entity;

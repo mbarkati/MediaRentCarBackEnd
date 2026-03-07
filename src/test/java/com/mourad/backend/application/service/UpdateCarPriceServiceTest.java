@@ -30,7 +30,7 @@ class UpdateCarPriceServiceTest {
     private UpdateCarPriceService updateCarPriceService;
 
     private static Car validCar() {
-        return Car.create("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR", null, null, null);
+        return Car.create("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR", null, null, null, null, null);
     }
 
     // ── Test 1 — happy path ───────────────────────────────────────────────────
@@ -45,7 +45,7 @@ class UpdateCarPriceServiceTest {
         UpdateCarPriceCommand command = new UpdateCarPriceCommand(BigDecimal.valueOf(75), "USD");
         CarDto result = updateCarPriceService.execute(id, command);
 
-        assertThat(result.dailyPrice()).isEqualByComparingTo(BigDecimal.valueOf(75));
+        assertThat(result.pricePerDay()).isEqualByComparingTo(BigDecimal.valueOf(75));
         assertThat(result.currency()).isEqualTo("USD");
         verify(carRepository).save(car);
     }

@@ -47,8 +47,8 @@ public class GetCarsService implements GetCarsUseCase {
     }
 
     @Override
-    public PageResult<CarDto> findAvailableOnDates(LocalDate startDate, LocalDate endDate, int page, int size) {
-        PageResult<Car> raw = carRepository.findAvailableOnDatesPaged(startDate, endDate, page, size);
+    public PageResult<CarDto> findAvailableOnDates(String city, LocalDate startDate, LocalDate endDate, int page, int size) {
+        PageResult<Car> raw = carRepository.findAvailableOnDatesPaged(city, startDate, endDate, page, size);
         List<CarDto> dtos = raw.content().stream().map(CarDto::from).collect(Collectors.toList());
         return new PageResult<>(dtos, raw.totalElements(), raw.totalPages(), raw.currentPage(), raw.first(), raw.last());
     }

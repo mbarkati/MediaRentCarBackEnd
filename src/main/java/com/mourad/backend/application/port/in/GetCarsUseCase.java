@@ -11,5 +11,5 @@ public interface GetCarsUseCase {
     List<CarDto> findAll();
     List<CarDto> findByStatus(CarStatus status);
     PageResult<CarDto> findPaged(int page, int size, CarStatus status);
-    PageResult<CarDto> findAvailableOnDates(LocalDate startDate, LocalDate endDate, int page, int size);
+    PageResult<CarDto> findAvailableOnDates(String city, LocalDate startDate, LocalDate endDate, int page, int size);
 }

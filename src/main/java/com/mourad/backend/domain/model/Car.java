@@ -23,6 +23,8 @@ public class Car {
     private Integer seats;
     private Transmission transmission;
     private Fuel fuel;
+    private String city;
+    private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -32,7 +34,8 @@ public class Car {
 
     public static Car create(String brand, String model, int year,
                               BigDecimal dailyPrice, String currency,
-                              Integer seats, Transmission transmission, Fuel fuel) {
+                              Integer seats, Transmission transmission, Fuel fuel,
+                              String city, String imageUrl) {
         validateYear(year);
         validateDailyPrice(dailyPrice);
         validateCurrency(currency);
@@ -48,6 +51,8 @@ public class Car {
         car.seats = seats;
         car.transmission = transmission;
         car.fuel = fuel;
+        car.city = city;
+        car.imageUrl = imageUrl;
         car.createdAt = LocalDateTime.now();
         car.updatedAt = LocalDateTime.now();
         return car;
@@ -58,6 +63,7 @@ public class Car {
     public static Car reconstitute(UUID id, String brand, String model, int year,
                                     BigDecimal dailyPrice, String currency, CarStatus status,
                                     Integer seats, Transmission transmission, Fuel fuel,
+                                    String city, String imageUrl,
                                     LocalDateTime createdAt, LocalDateTime updatedAt) {
         Car car = new Car();
         car.id = id;
@@ -70,6 +76,8 @@ public class Car {
         car.seats = seats;
         car.transmission = transmission;
         car.fuel = fuel;
+        car.city = city;
+        car.imageUrl = imageUrl;
         car.createdAt = createdAt;
         car.updatedAt = updatedAt;
         return car;
@@ -82,7 +90,9 @@ public class Car {
      * All invariants are re-validated on each update.
      */
     public void update(String brand, String model, int year,
-                        BigDecimal dailyPrice, String currency) {
+                        BigDecimal dailyPrice, String currency,
+                        Integer seats, Transmission transmission, Fuel fuel,
+                        String city, String imageUrl) {
         validateYear(year);
         validateDailyPrice(dailyPrice);
         validateCurrency(currency);
@@ -91,6 +101,11 @@ public class Car {
         this.year = year;
         this.dailyPrice = dailyPrice;
         this.currency = currency.toUpperCase();
+        this.seats = seats;
+        this.transmission = transmission;
+        this.fuel = fuel;
+        this.city = city;
+        this.imageUrl = imageUrl;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -151,6 +166,8 @@ public class Car {
     public Integer getSeats() { return seats; }
     public Transmission getTransmission() { return transmission; }
     public Fuel getFuel() { return fuel; }
+    public String getCity() { return city; }
+    public String getImageUrl() { return imageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

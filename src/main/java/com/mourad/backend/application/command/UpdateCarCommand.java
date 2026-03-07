@@ -5,7 +5,7 @@ import com.mourad.backend.domain.model.Transmission;
 
 import java.math.BigDecimal;
 
-public record CreateCarCommand(
+public record UpdateCarCommand(
         String brand,
         String model,
         int year,

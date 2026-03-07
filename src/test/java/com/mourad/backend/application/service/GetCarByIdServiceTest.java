@@ -28,7 +28,7 @@ class GetCarByIdServiceTest {
     private GetCarByIdService getCarByIdService;
 
     private static Car validCar() {
-        return Car.create("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR", null, null, null);
+        return Car.create("Renault", "Clio", 2022, BigDecimal.valueOf(50), "EUR", null, null, null, null, null);
     }
 
     // ── Test 1 — found ────────────────────────────────────────────────────────

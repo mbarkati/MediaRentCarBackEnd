@@ -65,8 +65,8 @@ public class CarRepositoryAdapter implements CarRepository {
     }
 
     @Override
-    public PageResult<Car> findAvailableOnDatesPaged(LocalDate startDate, LocalDate endDate, int page, int size) {
-        Page<CarJpaEntity> p = jpaRepository.findAvailableOnDates(startDate, endDate, PageRequest.of(page, size));
+    public PageResult<Car> findAvailableOnDatesPaged(String city, LocalDate startDate, LocalDate endDate, int page, int size) {
+        Page<CarJpaEntity> p = jpaRepository.findAvailableOnDates(city, startDate, endDate, PageRequest.of(page, size));
         List<Car> cars = p.getContent().stream().map(CarMapper::toDomain).collect(Collectors.toList());
         return new PageResult<>(cars, p.getTotalElements(), p.getTotalPages(), p.getNumber(), p.isFirst(), p.isLast());
     }

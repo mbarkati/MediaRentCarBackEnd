@@ -14,12 +14,15 @@ public record CarDto(
         String brand,
         String model,
         int year,
-        BigDecimal dailyPrice,
+        BigDecimal pricePerDay,
         String currency,
         CarStatus status,
+        boolean isActive,
         Integer seats,
         Transmission transmission,
         Fuel fuel,
+        String city,
+        String imageUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -32,9 +35,12 @@ public record CarDto(
                 car.getDailyPrice(),
                 car.getCurrency(),
                 car.getStatus(),
+                car.getStatus() == CarStatus.AVAILABLE,
                 car.getSeats(),
                 car.getTransmission(),
                 car.getFuel(),
+                car.getCity(),
+                car.getImageUrl(),
                 car.getCreatedAt(),
                 car.getUpdatedAt()
         );

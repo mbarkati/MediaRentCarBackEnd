@@ -1,6 +1,7 @@
 package com.mourad.backend.interfaces.rest;
 
 import com.mourad.backend.application.command.CreateCarCommand;
+import com.mourad.backend.application.command.UpdateCarCommand;
 import com.mourad.backend.application.command.UpdateCarPriceCommand;
 import com.mourad.backend.application.dto.CarDto;
 import com.mourad.backend.application.port.in.CreateCarUseCase;
@@ -8,9 +9,11 @@ import com.mourad.backend.application.port.in.DeleteCarUseCase;
 import com.mourad.backend.application.port.in.GetCarByIdUseCase;
 import com.mourad.backend.application.port.in.GetCarsUseCase;
 import com.mourad.backend.application.port.in.UpdateCarPriceUseCase;
+import com.mourad.backend.application.port.in.UpdateCarUseCase;
 import com.mourad.backend.domain.model.CarStatus;
 import com.mourad.backend.interfaces.dto.request.CreateCarRequest;
 import com.mourad.backend.interfaces.dto.request.UpdateCarPriceRequest;
+import com.mourad.backend.interfaces.dto.request.UpdateCarRequest;
 import com.mourad.backend.interfaces.dto.response.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,17 +39,20 @@ public class CarController {
 
     private final CreateCarUseCase createCarUseCase;
     private final DeleteCarUseCase deleteCarUseCase;
+    private final UpdateCarUseCase updateCarUseCase;
     private final UpdateCarPriceUseCase updateCarPriceUseCase;
     private final GetCarsUseCase getCarsUseCase;
     private final GetCarByIdUseCase getCarByIdUseCase;
 
     public CarController(CreateCarUseCase createCarUseCase,
                          DeleteCarUseCase deleteCarUseCase,
+                         UpdateCarUseCase updateCarUseCase,
                          UpdateCarPriceUseCase updateCarPriceUseCase,
                          GetCarsUseCase getCarsUseCase,
                          GetCarByIdUseCase getCarByIdUseCase) {
         this.createCarUseCase = createCarUseCase;
         this.deleteCarUseCase = deleteCarUseCase;
+        this.updateCarUseCase = updateCarUseCase;
         this.updateCarPriceUseCase = updateCarPriceUseCase;
         this.getCarsUseCase = getCarsUseCase;
         this.getCarByIdUseCase = getCarByIdUseCase;
@@ -128,11 +134,13 @@ public class CarController {
                 request.brand(),
                 request.model(),
                 request.year(),
-                request.dailyPrice(),
+                request.pricePerDay(),
                 request.currency(),
                 request.seats(),
                 request.transmission(),
-                request.fuel()
+                request.fuel(),
+                request.city(),
+                request.imageUrl()
         ));
         return ResponseEntity
                 .created(URI.create("/api/admin/cars/" + dto.id()))
@@ -170,7 +178,41 @@ public class CarController {
         return ResponseEntity.ok(getCarByIdUseCase.execute(id));
     }
 
-    // ── UPDATE ────────────────────────────────────────────────────────────────
+    // ── UPDATE (full) ─────────────────────────────────────────────────────────
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Fully update a car")
+    @ApiResponse(responseCode = "200", description = "Car updated",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CarDto.class)))
+    @ApiResponse(responseCode = "400", description = "Validation failure",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "401", description = "Missing or invalid token",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "Authenticated but not ADMIN",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Car not found",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "422", description = "Domain invariant violated",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<CarDto> updateCar(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateCarRequest request) {
+        CarDto dto = updateCarUseCase.execute(id, new UpdateCarCommand(
+                request.brand(),
+                request.model(),
+                request.year(),
+                request.pricePerDay(),
+                request.currency(),
+                request.seats(),
+                request.transmission(),
+                request.fuel(),
+                request.city(),
+                request.imageUrl()
+        ));
+        return ResponseEntity.ok(dto);
+    }
+
+    // ── UPDATE (price only) ───────────────────────────────────────────────────
 
     @PatchMapping("/{id}/price")
     @Operation(
