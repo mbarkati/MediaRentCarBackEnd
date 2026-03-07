@@ -82,9 +82,6 @@ public class PublicCarController {
                             }
                             """)))
     public ResponseEntity<PageResult<CarDto>> getCars(
-            @Parameter(description = "City filter — only cars available in this city", example = "Casablanca")
-            @RequestParam(required = false) String city,
-
             @Parameter(description = "Availability start date (ISO 8601). Requires 'to'.", example = "2026-03-10")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
 
@@ -100,7 +97,7 @@ public class PublicCarController {
             @Parameter(description = "Page size — between 1 and 100", example = "20")
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
         if (from != null && to != null) {
-            return ResponseEntity.ok(getCarsUseCase.findAvailableOnDates(city, from, to, page, size));
+            return ResponseEntity.ok(getCarsUseCase.findAvailableOnDates(from, to, page, size));
         }
         return ResponseEntity.ok(getCarsUseCase.findPaged(page, size, status));
     }

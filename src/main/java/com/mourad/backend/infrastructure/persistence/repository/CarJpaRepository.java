@@ -21,7 +21,6 @@ public interface CarJpaRepository extends JpaRepository<CarJpaEntity, UUID> {
     @Query(value =
                "SELECT c FROM CarJpaEntity c " +
                "WHERE c.status = com.mourad.backend.domain.model.CarStatus.AVAILABLE " +
-               "AND (:city IS NULL OR LOWER(c.city) = LOWER(:city)) " +
                "AND NOT EXISTS (" +
                "  SELECT 1 FROM UnavailablePeriodJpaEntity up " +
                "  WHERE up.car = c " +
@@ -30,14 +29,12 @@ public interface CarJpaRepository extends JpaRepository<CarJpaEntity, UUID> {
            countQuery =
                "SELECT COUNT(c) FROM CarJpaEntity c " +
                "WHERE c.status = com.mourad.backend.domain.model.CarStatus.AVAILABLE " +
-               "AND (:city IS NULL OR LOWER(c.city) = LOWER(:city)) " +
                "AND NOT EXISTS (" +
                "  SELECT 1 FROM UnavailablePeriodJpaEntity up " +
                "  WHERE up.car = c " +
                "  AND up.startDate <= :endDate AND up.endDate >= :startDate" +
                ")")
-    Page<CarJpaEntity> findAvailableOnDates(@Param("city") String city,
-                                             @Param("startDate") LocalDate startDate,
+    Page<CarJpaEntity> findAvailableOnDates(@Param("startDate") LocalDate startDate,
                                              @Param("endDate") LocalDate endDate,
                                              Pageable pageable);
 }

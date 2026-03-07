@@ -23,7 +23,7 @@ public interface CarRepository {
 
     PageResult<Car> findByStatusPaged(CarStatus status, int page, int size);
 
-    PageResult<Car> findAvailableOnDatesPaged(String city, LocalDate startDate, LocalDate endDate, int page, int size);
+    PageResult<Car> findAvailableOnDatesPaged(LocalDate startDate, LocalDate endDate, int page, int size);
 
     void deleteById(UUID id);
 }
