@@ -35,6 +35,11 @@ server:
   error:
     include-message: always   # propagate message into ProblemDetail
 
+reviewer:
+  user:
+    phone: ${REVIEWER_PHONE:+10000000001}
+    password: ${REVIEWER_PASSWORD:Reviewer@2024}
+
 springdoc:
   api-docs:
     path: /api-docs
