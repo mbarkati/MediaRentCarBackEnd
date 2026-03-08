@@ -2,10 +2,13 @@ package com.mourad.backend.interfaces.rest;
 
 import com.mourad.backend.domain.model.TokenPair;
 import com.mourad.backend.domain.port.in.AuthUseCase;
+import com.mourad.backend.domain.port.in.RegisterUseCase;
 import com.mourad.backend.interfaces.dto.request.LoginRequest;
 import com.mourad.backend.interfaces.dto.request.RefreshTokenRequest;
+import com.mourad.backend.interfaces.dto.request.RegisterRequest;
 import com.mourad.backend.interfaces.dto.response.ApiError;
 import com.mourad.backend.interfaces.dto.response.AuthResponse;
+import com.mourad.backend.interfaces.dto.response.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -13,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthUseCase authUseCase;
+    private final RegisterUseCase registerUseCase;
 
-    public AuthController(AuthUseCase authUseCase) {
+    public AuthController(AuthUseCase authUseCase, RegisterUseCase registerUseCase) {
         this.authUseCase = authUseCase;
+        this.registerUseCase = registerUseCase;
     }
 
     // ── LOGIN ─────────────────────────────────────────────────────────────────
@@ -74,6 +80,53 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         TokenPair tokenPair = authUseCase.login(request.username(), request.password());
         return ResponseEntity.ok(AuthResponse.from(tokenPair));
+    }
+
+    // ── REGISTER ──────────────────────────────────────────────────────────────
+
+    @PostMapping("/register")
+    @Operation(
+            summary = "Register a new mobile app user",
+            description = "Creates a new user account identified by phone number. No JWT is issued — the user must log in separately after registration."
+    )
+    @ApiResponse(responseCode = "201", description = "Account created successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = MessageResponse.class),
+                    examples = @ExampleObject(name = "created", value = """
+                            {"message": "Account created successfully"}
+                            """)))
+    @ApiResponse(responseCode = "400", description = "Missing, blank or invalid field",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ApiError.class),
+                    examples = @ExampleObject(name = "validation", value = """
+                            {
+                              "timestamp": "2026-03-08T10:00:00.000Z",
+                              "status": 400,
+                              "error": "BAD_REQUEST",
+                              "message": "phone: must be a valid phone number (7–15 digits, optional leading +)",
+                              "path": "/api/auth/register"
+                            }
+                            """)))
+    @ApiResponse(responseCode = "409", description = "Phone number already registered",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ApiError.class),
+                    examples = @ExampleObject(name = "conflict", value = """
+                            {
+                              "timestamp": "2026-03-08T10:00:00.000Z",
+                              "status": 409,
+                              "error": "CONFLICT",
+                              "message": "A user with phone number '+212600123456' already exists",
+                              "path": "/api/auth/register"
+                            }
+                            """)))
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody RegisterRequest request) {
+        registerUseCase.register(
+                request.firstName().strip(),
+                request.lastName().strip(),
+                request.phone().strip()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(MessageResponse.of("Account created successfully"));
     }
 
     // ── REFRESH ───────────────────────────────────────────────────────────────

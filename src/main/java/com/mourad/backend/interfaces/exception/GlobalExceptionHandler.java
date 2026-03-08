@@ -5,6 +5,7 @@ import com.mourad.backend.domain.exception.CarNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.exception.InvalidCredentialsException;
 import com.mourad.backend.domain.exception.UnavailablePeriodNotFoundException;
+import com.mourad.backend.domain.exception.UserAlreadyExistsException;
 import com.mourad.backend.interfaces.dto.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -30,6 +31,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleInvalidCredentials(
             InvalidCredentialsException ex, HttpServletRequest req) {
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
+    }
+
+    // ── Domain — user registration ────────────────────────────────────────────
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUserAlreadyExists(
+            UserAlreadyExistsException ex, HttpServletRequest req) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), req);
     }
 
     // ── Domain — car ──────────────────────────────────────────────────────────
