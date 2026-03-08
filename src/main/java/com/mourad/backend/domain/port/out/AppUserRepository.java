@@ -10,5 +10,7 @@ public interface AppUserRepository {
 
     Optional<AppUser> findByPhone(String phone);
 
+    void deleteByPhone(String phone);
+
     AppUser save(AppUser user);
 }

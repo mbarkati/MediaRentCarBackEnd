@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -111,6 +112,10 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // H2 console (only reachable when spring.h2.console.enabled=true in dev)
                         .requestMatchers("/h2-console/**").permitAll()
+                        // Web form for account deletion (Google Play policy — no app required)
+                        .requestMatchers("/delete-account").permitAll()
+                        // Mobile user self-service: delete own account via JWT
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/me").hasRole("APP_USER")
                         // All admin routes require ADMIN role
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

@@ -28,6 +28,11 @@ public class AppUserRepositoryAdapter implements AppUserRepository {
     }
 
     @Override
+    public void deleteByPhone(String phone) {
+        jpaRepository.deleteByPhone(phone);
+    }
+
+    @Override
     public AppUser save(AppUser user) {
         return AppUserMapper.toDomain(jpaRepository.save(AppUserMapper.toEntity(user)));
     }

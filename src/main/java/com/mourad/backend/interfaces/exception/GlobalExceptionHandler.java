@@ -7,6 +7,7 @@ import com.mourad.backend.domain.exception.InvalidCredentialsException;
 import com.mourad.backend.domain.exception.UnavailablePeriodNotFoundException;
 import com.mourad.backend.domain.exception.UserAlreadyExistsException;
 import com.mourad.backend.domain.exception.UserNotActiveException;
+import com.mourad.backend.domain.exception.UserNotFoundException;
 import com.mourad.backend.interfaces.dto.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -46,6 +47,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleUserNotActive(
             UserNotActiveException ex, HttpServletRequest req) {
         return build(HttpStatus.FORBIDDEN, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(
+            UserNotFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req);
     }
 
     // ── Domain — car ──────────────────────────────────────────────────────────
