@@ -6,6 +6,8 @@ import com.mourad.backend.infrastructure.persistence.mapper.AppUserMapper;
 import com.mourad.backend.infrastructure.persistence.repository.AppUserJpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class AppUserRepositoryAdapter implements AppUserRepository {
 
@@ -18,6 +20,11 @@ public class AppUserRepositoryAdapter implements AppUserRepository {
     @Override
     public boolean existsByPhone(String phone) {
         return jpaRepository.existsByPhone(phone);
+    }
+
+    @Override
+    public Optional<AppUser> findByPhone(String phone) {
+        return jpaRepository.findByPhone(phone).map(AppUserMapper::toDomain);
     }
 
     @Override

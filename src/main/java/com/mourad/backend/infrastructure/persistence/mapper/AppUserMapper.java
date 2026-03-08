@@ -13,6 +13,7 @@ public class AppUserMapper {
                 entity.getFirstName(),
                 entity.getLastName(),
                 entity.getPhone(),
+                entity.getPasswordHash(),
                 entity.getStatus(),
                 entity.getCreatedAt()
         );
@@ -24,6 +25,7 @@ public class AppUserMapper {
         entity.setFirstName(user.getFirstName());
         entity.setLastName(user.getLastName());
         entity.setPhone(user.getPhone());
+        entity.setPasswordHash(user.getPasswordHash());
         entity.setStatus(user.getStatus());
         entity.setCreatedAt(user.getCreatedAt());
         return entity;

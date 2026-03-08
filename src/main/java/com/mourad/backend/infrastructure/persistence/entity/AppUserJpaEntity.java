@@ -22,6 +22,9 @@ public class AppUserJpaEntity {
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
     @Column(nullable = false)
     private String status;
 
@@ -34,6 +37,7 @@ public class AppUserJpaEntity {
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getPhone() { return phone; }
+    public String getPasswordHash() { return passwordHash; }
     public String getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
@@ -41,6 +45,7 @@ public class AppUserJpaEntity {
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setPhone(String phone) { this.phone = phone; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public void setStatus(String status) { this.status = status; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
