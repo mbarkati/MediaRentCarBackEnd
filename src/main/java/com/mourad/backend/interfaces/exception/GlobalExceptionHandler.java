@@ -2,6 +2,7 @@ package com.mourad.backend.interfaces.exception;
 
 import com.mourad.backend.domain.exception.CarAlreadyExistsException;
 import com.mourad.backend.domain.exception.CarNotFoundException;
+import com.mourad.backend.domain.exception.CityNotFoundException;
 import com.mourad.backend.domain.exception.InvalidCarStateException;
 import com.mourad.backend.domain.exception.InvalidCredentialsException;
 import com.mourad.backend.domain.exception.UnavailablePeriodNotFoundException;
@@ -52,6 +53,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiError> handleUserNotFound(
             UserNotFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req);
+    }
+
+    // ── Domain — city ─────────────────────────────────────────────────────────
+
+    @ExceptionHandler(CityNotFoundException.class)
+    public ResponseEntity<ApiError> handleCityNotFound(
+            CityNotFoundException ex, HttpServletRequest req) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), req);
     }
 

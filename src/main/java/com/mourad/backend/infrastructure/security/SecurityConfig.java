@@ -106,6 +106,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Public car browsing (mobile / client)
                         .requestMatchers("/api/cars/**").permitAll()
+                        // Public city list (mobile reads at startup)
+                        .requestMatchers("/api/cities/**").permitAll()
                         // Public app config (mobile reads at startup)
                         .requestMatchers("/api/config/**").permitAll()
                         // Swagger UI
